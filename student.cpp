@@ -65,6 +65,29 @@ PipelineState pipelineState(Variant v) {
   // TODO(TASK 3d): should this pipeline write depth?
   // TODO(TASK 3e): "earlyz_a.frag" or "earlyz_b.frag", chosen from v
   // TODO(TASK 3f): DrawOrder::FrontToBack or ::BackToFront, chosen from v
+  s.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
+  s.cullMode = VK_CULL_MODE_BACK_BIT;
+  s.depthCompare = VK_COMPARE_OP_GREATER;
+  s.depthWrite = true;
+  
+  if (v == Variant::EarlyZFrontToBack) {
+      s.fragShader = "earlyz_a.frag";
+      s.drawOrder = DrawOrder::FrontToBack;
+  } 
+  else if (v == Variant::EarlyZBackToFront) {
+      s.fragShader = "earlyz_a.frag";
+      s.drawOrder = DrawOrder::BackToFront;
+  } 
+  else if (v == Variant::WriteDepthFrontToBack) {
+      s.fragShader = "earlyz_b.frag";
+      s.drawOrder = DrawOrder::FrontToBack;
+  } 
+  else if (v == Variant::WriteDepthBackToFront) {
+      s.fragShader = "earlyz_b.frag";
+      s.drawOrder = DrawOrder::BackToFront;
+  }
+
+
   return s;
 }
 
