@@ -9,7 +9,7 @@ if "%TARGET%"=="clean" (
   exit /b 0
 )
 
-cmake -S . -B %BUILD% -DCMAKE_BUILD_TYPE=Release || exit /b 1
+cmake -S . -B %BUILD% -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release || exit /b 1
 
 if "%TARGET%"=="all" (
   cmake --build %BUILD% --config Release || exit /b 1

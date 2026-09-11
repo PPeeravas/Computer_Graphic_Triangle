@@ -3,27 +3,42 @@
 #include <cstring>
 
 const std::vector<Vertex> TRIANGLE = {
-    // TODO(TASK 1a): three vertices. Check values are in Part I of the handout.
+    {{0.0,-0.5},{1,0,0}},
+    {{-0.5,0.5},{0,1,0}},
+    {{0.5,0.5},{0,0,1}}
 };
 
 VkVertexInputBindingDescription Vertex::bindingDescription() {
   VkVertexInputBindingDescription desc{};
   desc.binding = 0;
   desc.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-  desc.stride =
-      0;  // TODO(TASK 1b): how many bytes from one vertex to the next?
+  desc.stride =  20;  
   return desc;
 }
 
 std::vector<VkVertexInputAttributeDescription> Vertex::attributeDescriptions() {
-  // TODO(TASK 1c): two attributes. Each needs binding, location, format and
-  // offset.
-  return {};
+  VkVertexInputAttributeDescription pos{};
+    pos.location = 0;
+    pos.binding = 0;
+    pos.format = VK_FORMAT_R32G32_SFLOAT;
+    pos.offset = 0;
+  
+  VkVertexInputAttributeDescription color{};
+  color.location = 1;
+  color.binding = 0;
+  color.format = VK_FORMAT_R32G32B32_SFLOAT;
+  color.offset = 8;
+  
+  return { pos, color };
 }
 
 struct Params {
-  std::uint32_t placeholder[20];  // TODO(TASK 2a): replace with three std140
-                                  // members, padded
+
+    glm::mat4 mvp;
+    std::uint32_t costLoops;
+    std::uint32_t stripeWidth;       
+    std::uint64_t padded;
+             
 };
 
 static_assert(sizeof(Params) == 80,
@@ -32,7 +47,10 @@ static_assert(sizeof(Params) == 80,
 std::vector<std::uint8_t> uniformBlock(std::uint32_t costLoops,
                                        std::uint32_t stripeWidth) {
   Params params{};
-  // TODO(TASK 2b): an identity matrix, and the two knobs passed through.
+
+  params.mvp =  glm::mat4(1.0f);
+  params.costLoops = costLoops;
+  params.stripeWidth = stripeWidth;
 
   std::vector<std::uint8_t> bytes(sizeof(Params));
   std::memcpy(bytes.data(), &params, sizeof(Params));

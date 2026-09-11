@@ -10,9 +10,20 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# Vulkan
+# Vulkan and GLFW
 find_package(Vulkan REQUIRED)
-find_package(glfw3 REQUIRED)
+find_package(glfw3 QUIET)
+
+if(NOT glfw3_FOUND AND NOT TARGET glfw)
+  include(FetchContent)
+  FetchContent_Declare(
+    glfw
+    GIT_REPOSITORY https://github.com/glfw/glfw.git
+    GIT_TAG 3.4
+    GIT_SHALLOW TRUE
+  )
+  FetchContent_MakeAvailable(glfw)
+endif()
 
 # GLM ships with the Vulkan SDK, but not always on the default include path
 find_path(GLM_INCLUDE_DIR glm/glm.hpp
@@ -21,12 +32,21 @@ find_path(GLM_INCLUDE_DIR glm/glm.hpp
 )
 
 if(NOT GLM_INCLUDE_DIR)
-  message(FATAL_ERROR "glm/glm.hpp not found. It comes with the Vulkan SDK: set VULKAN_SDK "
-                      "or source the SDK's setup-env.sh. On Linux with apt, install libglm-dev")
+  include(FetchContent)
+  FetchContent_Declare(
+    glm_source
+    GIT_REPOSITORY https://github.com/g-truc/glm.git
+    GIT_TAG 1.0.1
+    GIT_SHALLOW TRUE
+  )
+  FetchContent_MakeAvailable(glm_source)
+  set(GLM_INCLUDE_DIR ${glm_source_SOURCE_DIR})
 endif()
 
-add_library(glm INTERFACE)
-target_include_directories(glm SYSTEM INTERFACE ${GLM_INCLUDE_DIR})
+if(NOT TARGET glm)
+  add_library(glm INTERFACE)
+  target_include_directories(glm SYSTEM INTERFACE ${GLM_INCLUDE_DIR})
+endif()
 
 # stb is two headers, fetched once, used only by src/utils/image.cpp
 set(STB_COMMIT f0569113c93ad095470c54bf34a17b36646bbbb5)
@@ -103,7 +123,9 @@ endforeach()
 
 # ── Shader compilation ────────────────────────────────────────────────────────
 # glslc ships with the Vulkan SDK; glslangValidator is the fallback name.
-find_program(GLSLC NAMES glslc glslangValidator)
+find_program(GLSLC NAMES glslc glslangValidator
+  HINTS $ENV{VULKAN_SDK}/Bin
+)
 
 if(NOT GLSLC)
   message(FATAL_ERROR "no GLSL compiler found. glslc comes with the Vulkan SDK; "
