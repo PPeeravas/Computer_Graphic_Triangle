@@ -11,7 +11,12 @@ layout(set = 0, binding = 0) uniform Params {
   uint stripeWidth;
 } u;
 
+layout(push_constant) uniform Layer {
+  float depth;
+  float scale;
+} layer;
+
 void main() {
-  gl_Position = u.mvp * vec4(inPosition, 0.0, 1.0);
+  gl_Position = u.mvp * vec4(inPosition * layer.scale, layer.depth, 1.0);
   fragColor   = inColor;
 }

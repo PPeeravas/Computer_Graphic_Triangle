@@ -12,6 +12,6 @@ layout(set = 0, binding = 0) uniform Params {
 } u;
 
 void main() {
-  gl_Position = u.mvp * vec4(inPosition, 0.0, 1.0);
+  gl_Position = u.mvp * vec4(inPosition * 4.0, 0.0, 1.0);
   fragColor   = inColor;
 }
