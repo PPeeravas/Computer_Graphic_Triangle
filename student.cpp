@@ -1,5 +1,5 @@
 #include "utils/Student.h"
-
+#include <glm/gtc/matrix_transform.hpp>
 #include <cstring>
 
 const std::vector<Vertex> TRIANGLE = {
@@ -105,10 +105,23 @@ const std::vector<std::uint16_t> QUAD_INDICES = {
 };
 
 std::vector<glm::mat4> instanceBuffer() {
-  // TODO(TASK 5a): INSTANCES transforms, glm::translate and glm::scale.
-  return {};
+  std::vector<glm::mat4> transforms;
+  transforms.reserve(5000); 
+for (int i = 0; i < 5000; i++) {
+        glm::mat4 m = glm::mat4(1.0f); 
+        
+        float x = (i % 100) * 0.02f - 0.99f;
+        float y = (i / 100) * 0.04f - 0.99f;
+        
+        m = glm::translate(m, glm::vec3(x, y, 0.0f));
+        m = glm::scale(m, glm::vec3(0.01f, 0.01f, 1.0f));
+        
+        transforms.push_back(m);
+    }
+    
+    return transforms;
 }
 
 void recordDraw(VkCommandBuffer cmd, std::uint32_t indexCount) {
-  // TODO(TASK 5b): one vkCmdDrawIndexed, with an instance count.
+  vkCmdDrawIndexed(cmd, indexCount, 5000, 0, 0, 0);
 }
